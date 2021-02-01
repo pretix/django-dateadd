@@ -39,7 +39,7 @@ class TestDjango_dateadd(TestCase):
             )
         )
 
-        # The following will work on PostgreSQL but fail on SQLite
+        # The following test will pass on PostgreSQL but fail on SQLite
         # The latter will return the same datetime, but mark it as UTC for some reason
         expected = datetime.datetime(2021, 2, 22, 0)
         self.assertEqual(products[0].calculated, expected)
@@ -60,6 +60,11 @@ class TestDjango_dateadd(TestCase):
 
         expected = datetime.datetime(2021, 2, 22, 0)
         self.assertEqual(products[0].calculated, expected)
+        # Note that on PostgreSQL the while returned datetime is using the correct timezone (otherwise the result would be
+        # datetime.datetime(2021, 2, 23, 0)
+        # ), the datetime is naive. You can see by uncommenting the following test which will fail:
+
+        # self.assertTrue(timezone.is_aware(products[0].calculated))
 
     def test_time_arithmetics_with_time(self):
         # This will work only on PostgreSQL and not on SQLite
@@ -72,6 +77,11 @@ class TestDjango_dateadd(TestCase):
 
         expected = datetime.datetime(2021, 2, 25, 10)
         self.assertEqual(products[0].calculated, expected)
+        # Note that on PostgreSQL the while returned datetime is using the correct timezone (otherwise the result would be
+        # datetime.datetime(2021, 2, 23, 0)
+        # ), the datetime is naive. You can see by uncommenting the following test which will fail:
+
+        # self.assertTrue(timezone.is_aware(products[0].calculated))
 
     def test_time_arithmetics_with_timedelta(self):
         # This will work only on PostgreSQL and not on SQLite
@@ -82,12 +92,16 @@ class TestDjango_dateadd(TestCase):
             )
         )
 
-        # The following will work on PostgreSQL but fail on SQLite
-        # The latter will return the same datetime, but mark it as UTC for some reason
         expected = datetime.datetime(2021, 2, 25, 10)
         self.assertEqual(products[0].calculated, expected)
+        # Note that on PostgreSQL the while returned datetime is using the correct timezone (otherwise the result would be
+        # datetime.datetime(2021, 2, 23, 0)
+        # ), the datetime is naive. You can see by uncommenting the following test which will fail:
+
+        # self.assertTrue(timezone.is_aware(products[0].calculated))
 
     def test_datetime_arithmetics(self):
+        # This will work only on PostgreSQL and not on SQLite
         products = Product.objects.all().annotate(
             calculated=ExpressionWrapper(
                 TruncDay('start_date', tzinfo=self.eastern) - F('number_of_days') * datetime.timedelta(days=1) +F('time_of_day'),
@@ -97,6 +111,11 @@ class TestDjango_dateadd(TestCase):
 
         expected = datetime.datetime(2021, 2, 22, 10)
         self.assertEqual(products[0].calculated, expected)
+        # Note that on PostgreSQL the while returned datetime is using the correct timezone (otherwise the result would be
+        # datetime.datetime(2021, 2, 23, 0)
+        # ), the datetime is naive. You can see by uncommenting the following test which will fail:
+
+        # self.assertTrue(timezone.is_aware(products[0].calculated))
 
     def test_datetime_arithmetics_with_timedelta(self):
         products = Product.objects.all().annotate(
@@ -106,10 +125,15 @@ class TestDjango_dateadd(TestCase):
             )
         )
 
-        # The following will work on PostgreSQL but fail on SQLite
+        # The following test will pass on PostgreSQL but fail on SQLite
         # The latter will return the same datetime, but mark it as UTC for some reason
         expected = datetime.datetime(2021, 2, 22, 10)
         self.assertEqual(products[0].calculated, expected)
+        # Note that on PostgreSQL the while returned datetime is using the correct timezone (otherwise the result would be
+        # datetime.datetime(2021, 2, 23, 0)
+        # ), the datetime is naive. You can see by uncommenting the following test which will fail:
+
+        # self.assertTrue(timezone.is_aware(products[0].calculated))
 
     def test_truncday_timezone(self):
         products = Product.objects.all().annotate(
